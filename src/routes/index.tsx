@@ -20,7 +20,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { diagnoseProblem, type Diagnosis, type Cause } from "@/lib/diagnose.functions";
-import { GLASS_AMBER, GLASS_DESTRUCTIVE, GLASS_NEUTRAL, GLASS_PRIMARY, GLASS_RED } from "@/lib/ui";
+import { BTN_ACCENT_AMBER, BTN_DESTRUCTIVE, BTN_PRIMARY, BTN_SECONDARY, CARD, CHIP_AMBER, CHIP_RED, INPUT } from "@/lib/ui";
 
 type Difficulty = "5-Minute DIY" | "Weekend Project" | "Call a Pro";
 
@@ -52,13 +52,6 @@ function suggestionScore(query: string, suggestion: string): number {
   return queryWords.reduce((score, w) => (s.includes(w) ? score + 1 : score), 0);
 }
 
-const CLAY_CARD =
-  "rounded-3xl border border-border/50 bg-gradient-to-b from-card to-card/70 shadow-xl shadow-black/10 ring-1 ring-white/40";
-
-const AMAZON_CHIP = GLASS_AMBER + " group flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm";
-
-const VIDEO_CHIP = GLASS_RED + " group flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm";
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -72,17 +65,6 @@ export const Route = createFileRoute("/")({
   }),
   component: Index,
 });
-
-function CloudBackdrop() {
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -left-28 -top-28 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-      <div className="absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-secondary/50 blur-3xl" />
-      <div className="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-secondary/30 blur-3xl" />
-    </div>
-  );
-}
 
 function Index() {
   const [query, setQuery] = useState("");
@@ -120,11 +102,10 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <CloudBackdrop />
       <div className="mx-auto max-w-2xl px-4 pt-10 pb-24 sm:pt-16">
         <header className="mb-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 ring-1 ring-white/30">
+            <div className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary">
               <Wrench className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-sm font-semibold tracking-wide uppercase text-primary">
@@ -134,7 +115,7 @@ function Index() {
           <h1 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
             Describe what's broken.
           </h1>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 leading-relaxed text-muted-foreground">
             AI gives you the 3 most likely causes, whether it's DIY-safe, and links to buy the parts.
           </p>
         </header>
@@ -146,7 +127,7 @@ function Index() {
           }}
           className="space-y-3"
         >
-          <div className={"relative " + CLAY_CARD}>
+          <div className={"relative " + CARD}>
             <Sparkles className="pointer-events-none absolute left-4 top-5 h-5 w-5 text-primary" />
             <textarea
               autoFocus
@@ -160,13 +141,13 @@ function Index() {
               }}
               rows={3}
               placeholder="e.g. My kitchen faucet drips even when turned off — started last week"
-              className="w-full resize-none rounded-3xl bg-transparent py-4 pl-12 pr-4 text-base text-foreground outline-none"
+              className={"w-full resize-none rounded-2xl bg-transparent py-4 pl-12 pr-4 text-base text-foreground " + INPUT}
             />
           </div>
           <button
             type="submit"
             disabled={mutation.isPending || query.trim().length < 3}
-            className={"flex w-full items-center justify-center gap-2 py-4 font-semibold " + GLASS_PRIMARY}
+            className={"w-full justify-center py-3 " + BTN_PRIMARY}
           >
             {mutation.isPending ? (
               <>
@@ -181,7 +162,7 @@ function Index() {
         </form>
 
         {mutation.isError && (
-          <div className="mt-4 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive shadow-inner shadow-black/5">
+          <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-danger-text">
             Couldn't reach the AI. Try again in a moment.
           </div>
         )}
@@ -197,7 +178,7 @@ function Index() {
                   <button
                     onClick={() => submit(p)}
                     disabled={mutation.isPending}
-                    className={"w-full px-4 py-3 text-left text-sm " + GLASS_NEUTRAL}
+                    className={"w-full px-4 py-3 text-left " + BTN_SECONDARY}
                   >
                     {p}
                   </button>
@@ -237,30 +218,29 @@ function Results({
 
   return (
     <div className="min-h-screen bg-background">
-      <CloudBackdrop />
-      <div className="mx-auto max-w-2xl px-4 pt-6 pb-24 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="mx-auto max-w-2xl px-4 pt-6 pb-24">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <ArrowLeft className="h-4 w-4" /> New problem
         </button>
 
         <div className="mt-4">
-          <div className="text-xs uppercase tracking-wide text-primary font-semibold">
+          <div className="text-xs font-semibold uppercase tracking-wide text-primary">
             {diagnosis.category}
           </div>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground">
             {diagnosis.title}
           </h1>
-          <p className="mt-2 text-sm italic text-muted-foreground">"{original}"</p>
+          <p className="mt-2 text-sm italic leading-relaxed text-muted-foreground">"{original}"</p>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <a
               href={amazonUrl(`${diagnosis.category} repair parts`)}
               target="_blank"
               rel="noreferrer noopener"
-              className={"inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold " + GLASS_AMBER}
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-600/30 bg-amber-500/10 px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-amber-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ShoppingBag className="h-3.5 w-3.5" />
               Shop {diagnosis.category.toLowerCase()} parts on Amazon
@@ -271,7 +251,7 @@ function Results({
                 href={youtubeUrl(`${diagnosis.title} repair tutorial`)}
                 target="_blank"
                 rel="noreferrer noopener"
-                className={"inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold " + GLASS_RED}
+                className="inline-flex items-center gap-2 rounded-xl border border-red-600/30 bg-red-500/10 px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-red-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <SquarePlay className="h-3.5 w-3.5" />
                 Watch videos on YouTube
@@ -283,17 +263,17 @@ function Results({
 
         {diagnosis.redFlags.length > 0 && (
           <div
-            className="mt-6 rounded-3xl border-2 p-5 shadow-xl shadow-destructive/10 ring-1 ring-white/30"
+            className="mt-6 rounded-2xl border p-5"
             style={{ background: "var(--danger-surface)", borderColor: "var(--danger-border)" }}
           >
-            <div className="flex items-center gap-2 font-bold text-destructive">
+            <div className="flex items-center gap-2 font-bold text-danger-text">
               <AlertTriangle className="h-5 w-5" />
               Stop — not DIY if you see this
             </div>
-            <ul className="mt-3 space-y-2 text-sm text-foreground">
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-foreground">
               {diagnosis.redFlags.map((f, i) => (
                 <li key={i} className="flex gap-2">
-                  <span className="text-destructive">•</span>
+                  <span className="text-danger-text">•</span>
                   <span>{f}</span>
                 </li>
               ))}
@@ -316,29 +296,23 @@ function Results({
             href={`https://www.google.com/search?q=${encodeURIComponent(diagnosis.title + " repair near me")}`}
             target="_blank"
             rel="noreferrer"
-            className={"flex w-full items-center justify-center gap-2 py-4 font-semibold " + GLASS_PRIMARY}
+            className={"w-full justify-center py-3 " + BTN_PRIMARY}
           >
             Still stuck? Find a local pro <ExternalLink className="h-4 w-4" />
           </a>
 
-          <div className={"p-4 text-center " + CLAY_CARD}>
+          <div className={"p-4 text-center " + CARD}>
             <div className="text-sm text-muted-foreground">Was this helpful?</div>
-            <div className="mt-2 flex justify-center gap-2">
+            <div className="mt-3 flex justify-center gap-2">
               <button
                 onClick={() => setVote("up")}
-                className={
-                  "inline-flex items-center gap-1 px-4 py-2 text-sm font-medium " +
-                  (vote === "up" ? GLASS_PRIMARY : GLASS_NEUTRAL)
-                }
+                className={"px-4 py-2 " + (vote === "up" ? BTN_PRIMARY : BTN_SECONDARY)}
               >
                 <ThumbsUp className="h-4 w-4" /> Yes
               </button>
               <button
                 onClick={() => setVote("down")}
-                className={
-                  "inline-flex items-center gap-1 px-4 py-2 text-sm font-medium " +
-                  (vote === "down" ? GLASS_DESTRUCTIVE : GLASS_NEUTRAL)
-                }
+                className={"px-4 py-2 " + (vote === "down" ? BTN_DESTRUCTIVE : BTN_SECONDARY)}
               >
                 <ThumbsDown className="h-4 w-4" /> Not really
               </button>
@@ -365,20 +339,20 @@ function CauseCard({
   const [guideOpen, setGuideOpen] = useState(false);
 
   return (
-    <li className={"p-5 " + CLAY_CARD}>
+    <li className={"p-5 " + CARD}>
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-sm font-bold text-primary-foreground shadow-md shadow-primary/40 ring-2 ring-white/30">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
           {i + 1}
         </span>
         <div className="flex-1">
           <div className="font-semibold text-foreground">{c.title}</div>
-          <p className="mt-1 text-sm text-muted-foreground">{c.why}</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.why}</p>
         </div>
       </div>
 
       <div className="mt-4">
         <DifficultyBadge difficulty={c.difficulty as Difficulty} />
-        <p className="mt-2 text-xs text-muted-foreground">{c.difficultyReason}</p>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{c.difficultyReason}</p>
       </div>
 
       {c.hasVideo !== false && (
@@ -386,7 +360,7 @@ function CauseCard({
           href={youtubeUrl(`${c.title} - ${diagnosisTitle} repair how to`)}
           target="_blank"
           rel="noreferrer noopener"
-          className={"mt-3 " + VIDEO_CHIP}
+          className={"mt-3 " + CHIP_RED}
         >
           <span className="flex items-center gap-2">
             <SquarePlay className="h-3.5 w-3.5" />
@@ -403,7 +377,7 @@ function CauseCard({
           <button
             type="button"
             onClick={() => setGuideOpen((open) => !open)}
-            className={"flex w-full items-center justify-between gap-2 px-3.5 py-2.5 text-sm font-semibold " + GLASS_PRIMARY}
+            className={"w-full justify-between px-3.5 py-2.5 " + BTN_SECONDARY}
           >
             <span className="flex items-center gap-2">
               <ListChecks className="h-3.5 w-3.5" />
@@ -416,10 +390,10 @@ function CauseCard({
             />
           </button>
           {guideOpen && (
-            <ol className="mt-2.5 space-y-2 rounded-2xl border border-border/40 bg-gradient-to-b from-secondary/60 to-secondary/30 p-4 shadow-inner shadow-black/5">
+            <ol className="mt-2.5 space-y-2 rounded-xl border border-border bg-secondary/40 p-4">
               {c.steps.map((step, stepIndex) => (
-                <li key={stepIndex} className="flex gap-3 text-sm text-foreground">
-                  <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-[11px] font-bold text-primary-foreground shadow-sm shadow-primary/30">
+                <li key={stepIndex} className="flex gap-3 text-sm leading-relaxed text-foreground">
+                  <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
                     {stepIndex + 1}
                   </span>
                   <span className="pt-0.5">{step}</span>
@@ -432,10 +406,8 @@ function CauseCard({
 
       {c.tools.length > 0 && (
         <div className="mt-4">
-          <div className="flex items-center justify-between">
-            <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-              What you'd need · tap to buy
-            </div>
+          <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            What you'd need · tap to buy
           </div>
           <ul className="mt-2 space-y-1.5">
             {c.tools.map((t) => (
@@ -444,7 +416,7 @@ function CauseCard({
                   href={amazonUrl(t)}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className={AMAZON_CHIP}
+                  className={CHIP_AMBER}
                 >
                   <span className="flex items-center gap-2">
                     <ShoppingCart className="h-3.5 w-3.5" />
@@ -462,7 +434,7 @@ function CauseCard({
               href={amazonUrl(c.tools.join(" "))}
               target="_blank"
               rel="noreferrer noopener"
-              className={"mt-2.5 flex w-full items-center justify-center gap-2 py-2.5 text-xs font-bold " + GLASS_AMBER}
+              className={"mt-2.5 w-full justify-center py-2.5 text-xs " + BTN_ACCENT_AMBER}
             >
               <ShoppingBag className="h-3.5 w-3.5" />
               Shop all {c.tools.length} parts on Amazon
@@ -472,13 +444,13 @@ function CauseCard({
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-        <div className="rounded-2xl border border-border/40 bg-gradient-to-b from-secondary/70 to-secondary/40 p-3 shadow-inner shadow-black/5">
+        <div className="rounded-xl border border-border bg-secondary/40 p-3">
           <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
             DIY cost
           </div>
           <div className="mt-0.5 font-semibold text-foreground">{c.diyCost}</div>
         </div>
-        <div className="rounded-2xl border border-border/40 bg-gradient-to-b from-secondary/70 to-secondary/40 p-3 shadow-inner shadow-black/5">
+        <div className="rounded-xl border border-border bg-secondary/40 p-3">
           <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
             Hire a pro
           </div>
@@ -490,25 +462,17 @@ function CauseCard({
 }
 
 function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
-  const styles: Record<
-    Difficulty,
-    { bg: string; fg: string; ring: string; icon: typeof Zap }
-  > = {
-    "5-Minute DIY": { bg: "oklch(0.92 0.08 150)", fg: "oklch(0.28 0.06 150)", ring: "oklch(0.65 0.15 150)", icon: Zap },
-    "Weekend Project": { bg: "oklch(0.94 0.09 75)", fg: "oklch(0.3 0.06 60)", ring: "oklch(0.75 0.16 75)", icon: CalendarRange },
-    "Call a Pro": { bg: "oklch(0.94 0.05 27)", fg: "oklch(0.35 0.15 27)", ring: "oklch(0.65 0.2 27)", icon: PhoneCall },
+  const styles: Record<Difficulty, { bg: string; fg: string; border: string; icon: typeof Zap }> = {
+    "5-Minute DIY": { bg: "oklch(0.92 0.08 150)", fg: "oklch(0.28 0.06 150)", border: "oklch(0.65 0.15 150)", icon: Zap },
+    "Weekend Project": { bg: "oklch(0.94 0.09 75)", fg: "oklch(0.3 0.06 60)", border: "oklch(0.75 0.16 75)", icon: CalendarRange },
+    "Call a Pro": { bg: "oklch(0.94 0.05 27)", fg: "oklch(0.35 0.15 27)", border: "oklch(0.65 0.2 27)", icon: PhoneCall },
   };
   const s = styles[difficulty];
   const Icon = s.icon;
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-xs font-semibold"
-      style={{
-        backgroundColor: s.bg,
-        color: s.fg,
-        borderColor: s.ring,
-        boxShadow: `inset 0 1px 0 rgba(255,255,255,.5), 0 6px 16px -6px color-mix(in oklch, ${s.ring} 55%, transparent)`,
-      }}
+      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold"
+      style={{ backgroundColor: s.bg, color: s.fg, borderColor: s.border }}
     >
       <Icon className="h-3 w-3" />
       {difficulty}

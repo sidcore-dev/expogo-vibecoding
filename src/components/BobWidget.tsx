@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, MessageCircle, Send, X } from "lucide-react";
 import { askBob, BOB_GREETING } from "@/lib/bob.functions";
-import { GLASS_PRIMARY } from "@/lib/ui";
+import { BTN_PRIMARY, CARD, INPUT } from "@/lib/ui";
 
 interface Message {
   role: "user" | "bob";
@@ -35,10 +35,10 @@ export function BobWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {open && (
-        <div className="flex h-[28rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-b from-card to-card/70 shadow-2xl shadow-black/20 ring-1 ring-white/40">
-          <div className="flex items-center justify-between gap-2 border-b border-border/40 px-4 py-3">
+        <div className={"flex h-[28rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col overflow-hidden " + CARD}>
+          <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/40 ring-1 ring-white/30">
+              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary">
                 <Bot className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
@@ -52,7 +52,7 @@ export function BobWidget() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close Bob"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <X className="h-4 w-4" />
             </button>
@@ -66,10 +66,10 @@ export function BobWidget() {
               >
                 <div
                   className={
-                    "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm shadow-sm " +
+                    "max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed " +
                     (m.role === "user"
-                      ? "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-primary/20"
-                      : "border border-border/40 bg-gradient-to-b from-secondary/70 to-secondary/40 text-foreground shadow-black/5")
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-secondary/40 text-foreground")
                   }
                 >
                   {m.text}
@@ -78,14 +78,14 @@ export function BobWidget() {
             ))}
             {thinking && (
               <div className="flex justify-start">
-                <div className="rounded-2xl border border-border/40 bg-gradient-to-b from-secondary/70 to-secondary/40 px-3.5 py-2.5 text-sm text-muted-foreground shadow-sm shadow-black/5">
+                <div className="rounded-xl border border-border bg-secondary/40 px-3.5 py-2.5 text-sm text-muted-foreground">
                   Bob is thinking…
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 border-t border-border/40 p-3">
+          <div className="flex items-center gap-2 border-t border-border p-3">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -96,14 +96,14 @@ export function BobWidget() {
                 }
               }}
               placeholder="Ask Bob something…"
-              className="flex-1 rounded-2xl border border-border/50 bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              className={"flex-1 rounded-xl bg-background px-3.5 py-2.5 text-sm text-foreground " + INPUT}
             />
             <button
               type="button"
               onClick={send}
               disabled={thinking || input.trim().length === 0}
               aria-label="Send"
-              className={"flex h-10 w-10 flex-none items-center justify-center " + GLASS_PRIMARY}
+              className={"h-10 w-10 flex-none justify-center " + BTN_PRIMARY}
             >
               <Send className="h-4 w-4" />
             </button>
@@ -115,10 +115,10 @@ export function BobWidget() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close Bob helper" : "Open Bob helper"}
-        className={"flex items-center gap-2 px-4 py-3 " + GLASS_PRIMARY}
+        className={"px-4 py-3 shadow-lg " + BTN_PRIMARY}
       >
         {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
-        <span className="text-sm font-semibold">Bob</span>
+        <span>Bob</span>
       </button>
     </div>
   );
