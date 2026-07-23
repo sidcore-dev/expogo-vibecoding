@@ -9,6 +9,8 @@ export interface Cause {
   diyCost: string;
   proCost: string;
   steps: string[];
+  /** Set to false when no real tutorial video applies (e.g. "call a licensed pro" causes with no DIY steps to film). Defaults to true when omitted. */
+  hasVideo?: boolean;
 }
 
 export interface Diagnosis {
@@ -80,6 +82,7 @@ const PROFILES: Profile[] = [
             "Take photos of the faucet model and valve body to show the plumber.",
             "Schedule a licensed plumber to inspect and likely replace the faucet or supply lines.",
           ],
+          hasVideo: false,
         },
       ],
     },
@@ -138,6 +141,7 @@ const PROFILES: Profile[] = [
             "Avoid using the outlet until it's been inspected.",
             "Call a licensed electrician to open the box and check the wiring.",
           ],
+          hasVideo: false,
         },
       ],
     },
@@ -437,6 +441,7 @@ const PROFILES: Profile[] = [
             "Check for ice on the refrigerant lines or outdoor unit.",
             "Call an EPA-certified HVAC technician to check refrigerant levels and the compressor.",
           ],
+          hasVideo: false,
         },
       ],
     },
@@ -495,6 +500,7 @@ const GENERIC: Diagnosis = {
         "Document when the issue happens and any patterns you notice.",
         "Contact a licensed professional in the relevant trade for a full diagnosis.",
       ],
+      hasVideo: false,
     },
   ],
 };
