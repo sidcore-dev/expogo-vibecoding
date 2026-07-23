@@ -274,29 +274,6 @@ function Results({
           </div>
         </div>
 
-        {diagnosis.redFlags.length > 0 && (
-          <div
-            className="mt-6 rounded-2xl border p-5"
-            style={{
-              background: "var(--danger-surface)",
-              borderColor: "var(--danger-border)",
-            }}
-          >
-            <div className="flex items-center gap-2 font-bold text-danger-text">
-              <AlertTriangle className="h-5 w-5" />
-              Stop — not DIY if you see this
-            </div>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-foreground">
-              {diagnosis.redFlags.map((f, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-danger-text">•</span>
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         <h2 className="mt-8 text-sm font-bold uppercase tracking-wide text-muted-foreground">
           Top {diagnosis.causes.length} likely causes
         </h2>
@@ -352,6 +329,29 @@ function Results({
             )}
           </div>
         </div>
+
+        {diagnosis.redFlags.length > 0 && (
+          <div
+            className="mt-8 rounded-2xl border p-5"
+            style={{
+              background: "var(--danger-surface)",
+              borderColor: "var(--danger-border)",
+            }}
+          >
+            <div className="flex items-center gap-2 font-bold text-danger-text">
+              <AlertTriangle className="h-5 w-5" />
+              Stop — not DIY if you see this
+            </div>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-foreground">
+              {diagnosis.redFlags.map((f, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-danger-text">•</span>
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
