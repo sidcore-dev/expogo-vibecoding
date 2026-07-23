@@ -9,6 +9,7 @@ export interface FaqEntry {
 export interface BobSettings {
   greeting: string;
   fallback: string;
+  ludicrousReply: string;
 }
 
 const DEFAULT_FAQ: FaqEntry[] = [
@@ -87,7 +88,30 @@ const DEFAULT_SETTINGS: BobSettings = {
     "Hi, I'm Bob! Ask me a home-safety or how-to question, or run something by me if you're not sure it's the right call.",
   fallback:
     "I don't have a solid answer stored for that one yet — I'm a lightweight helper, so I only know what's in my FAQ list. Try rephrasing, or ask about home safety, DIY-vs-pro decisions, or a right-thing-to-do question. For a specific broken item, use the diagnosis box above instead.",
+  ludicrousReply:
+    "That one's a bit outside my wheelhouse — I'm here for home repair and safety questions, not that. Try me with something like \"is it safe to DIY electrical work?\"",
 };
+
+// Trigger phrases for questions that aren't real home-repair questions —
+// checked before FAQ matching so Bob deflects instead of guessing.
+const DEFAULT_LUDICROUS_KEYWORDS: string[] = [
+  "meaning of life",
+  "are you sentient",
+  "are you conscious",
+  "do you dream",
+  "marry me",
+  "i love you",
+  "aliens",
+  "time travel",
+  "lottery numbers",
+  "who would win in a fight",
+  "yo mama",
+  "your mom",
+  "tell me a joke",
+  "what's the weather on mars",
+  "how many licks",
+  "what is love",
+];
 
 function score(query: string, keywords: string[]): number {
   const q = query.toLowerCase();
@@ -101,9 +125,14 @@ export const askBob = createServerFn({ method: "POST" })
 
     const faq = getContent("bob.faq", DEFAULT_FAQ);
     const settings = getContent("bob.settings", DEFAULT_SETTINGS);
+    const ludicrousKeywords = getContent("bob.ludicrousKeywords", DEFAULT_LUDICROUS_KEYWORDS);
 
     const trimmed = message.trim();
     if (!trimmed) return settings.fallback;
+
+    if (score(trimmed, ludicrousKeywords) > 0) {
+      return settings.ludicrousReply;
+    }
 
     let best: { entry: FaqEntry; score: number } | null = null;
     for (const entry of faq) {
@@ -124,12 +153,14 @@ export const getBobContent = createServerFn().handler(async () => {
   return {
     faq: getContent("bob.faq", DEFAULT_FAQ),
     settings: getContent("bob.settings", DEFAULT_SETTINGS),
+    ludicrousKeywords: getContent("bob.ludicrousKeywords", DEFAULT_LUDICROUS_KEYWORDS),
   };
 });
 
 export const saveBobContent = createServerFn({ method: "POST" })
-  .validator((d: { faq: FaqEntry[]; settings: BobSettings }) => d)
+  .validator((d: { faq: FaqEntry[]; settings: BobSettings; ludicrousKeywords: string[] }) => d)
   .handler(async ({ data }) => {
     setContent("bob.faq", data.faq);
     setContent("bob.settings", data.settings);
+    setContent("bob.ludicrousKeywords", data.ludicrousKeywords);
   });

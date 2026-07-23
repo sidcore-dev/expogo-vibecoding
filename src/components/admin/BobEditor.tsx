@@ -4,7 +4,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { saveBobContent } from "@/lib/bob.functions";
 import type { BobSettings, FaqEntry } from "@/lib/bob.functions";
 import { BTN_SECONDARY, CARD } from "@/lib/ui";
-import { Field, SaveBar, Section, TextArea, TextInput } from "@/components/admin/shared";
+import { Field, SaveBar, Section, StringListEditor, TextArea, TextInput } from "@/components/admin/shared";
 
 interface EditableFaqEntry {
   keywordsText: string;
@@ -27,13 +27,19 @@ function toFaq(entries: EditableFaqEntry[]): FaqEntry[] {
     .filter((e) => e.keywords.length > 0 && e.answer.length > 0);
 }
 
-export function BobEditor({ initial }: { initial: { faq: FaqEntry[]; settings: BobSettings } }) {
+export function BobEditor({
+  initial,
+}: {
+  initial: { faq: FaqEntry[]; settings: BobSettings; ludicrousKeywords: string[] };
+}) {
   const [settings, setSettings] = useState(initial.settings);
   const [entries, setEntries] = useState<EditableFaqEntry[]>(toEditable(initial.faq));
+  const [ludicrousKeywords, setLudicrousKeywords] = useState(initial.ludicrousKeywords);
   const [saved, setSaved] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: (data: { faq: FaqEntry[]; settings: BobSettings }) => saveBobContent({ data }),
+    mutationFn: (data: { faq: FaqEntry[]; settings: BobSettings; ludicrousKeywords: string[] }) =>
+      saveBobContent({ data }),
     onSuccess: () => setSaved(true),
   });
 
@@ -61,6 +67,27 @@ export function BobEditor({ initial }: { initial: { faq: FaqEntry[]; settings: B
           onChange={(e) => {
             setSaved(false);
             setSettings((s) => ({ ...s, fallback: e.target.value }));
+          }}
+        />
+      </Field>
+      <Field label="Ludicrous-question reply (used when the trigger list below matches)">
+        <TextArea
+          rows={2}
+          value={settings.ludicrousReply}
+          onChange={(e) => {
+            setSaved(false);
+            setSettings((s) => ({ ...s, ludicrousReply: e.target.value }));
+          }}
+        />
+      </Field>
+      <Field label="Ludicrous-question triggers (checked before the FAQ — Bob deflects instead of guessing)">
+        <StringListEditor
+          values={ludicrousKeywords}
+          addLabel="Add trigger phrase"
+          placeholder="e.g. meaning of life"
+          onChange={(next) => {
+            setSaved(false);
+            setLudicrousKeywords(next);
           }}
         />
       </Field>
@@ -111,8 +138,10 @@ export function BobEditor({ initial }: { initial: { faq: FaqEntry[]; settings: B
         saved={saved}
         onSave={() => {
           const faq = toFaq(entries);
+          const cleanedKeywords = ludicrousKeywords.filter((k) => k.trim().length > 0);
           setEntries(toEditable(faq));
-          mutation.mutate({ faq, settings });
+          setLudicrousKeywords(cleanedKeywords);
+          mutation.mutate({ faq, settings, ludicrousKeywords: cleanedKeywords });
         }}
       />
     </Section>
