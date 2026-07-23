@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, MessageCircle, Send, X } from "lucide-react";
 import { askBob, BOB_GREETING } from "@/lib/bob.functions";
+import { GLASS_PRIMARY } from "@/lib/ui";
 
 interface Message {
   role: "user" | "bob";
@@ -102,7 +103,7 @@ export function BobWidget() {
               onClick={send}
               disabled={thinking || input.trim().length === 0}
               aria-label="Send"
-              className="flex h-10 w-10 flex-none items-center justify-center rounded-2xl bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/40 disabled:opacity-50 disabled:hover:translate-y-0"
+              className={"flex h-10 w-10 flex-none items-center justify-center " + GLASS_PRIMARY}
             >
               <Send className="h-4 w-4" />
             </button>
@@ -114,7 +115,7 @@ export function BobWidget() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close Bob helper" : "Open Bob helper"}
-        className="flex items-center gap-2 rounded-full bg-gradient-to-br from-primary to-primary/70 px-4 py-3 text-primary-foreground shadow-xl shadow-primary/40 ring-1 ring-white/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-primary/50"
+        className={"flex items-center gap-2 px-4 py-3 " + GLASS_PRIMARY}
       >
         {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
         <span className="text-sm font-semibold">Bob</span>
