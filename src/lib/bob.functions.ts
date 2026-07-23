@@ -1,9 +1,17 @@
-interface FaqEntry {
+import { createServerFn } from "@tanstack/react-start";
+import { getContent, setContent } from "@/lib/db.server";
+
+export interface FaqEntry {
   keywords: string[];
   answer: string;
 }
 
-const FAQ: FaqEntry[] = [
+export interface BobSettings {
+  greeting: string;
+  fallback: string;
+}
+
+const DEFAULT_FAQ: FaqEntry[] = [
   {
     keywords: ["hi", "hello", "hey", "yo", "sup"],
     answer:
@@ -74,30 +82,54 @@ const FAQ: FaqEntry[] = [
   },
 ];
 
-const FALLBACK =
-  "I don't have a solid answer stored for that one yet — I'm a lightweight helper, not a full AI, so I only know what's in my FAQ list. Try rephrasing, or ask about home safety, DIY-vs-pro decisions, or a right-thing-to-do question. For a specific broken item, use the diagnosis box above instead.";
+const DEFAULT_SETTINGS: BobSettings = {
+  greeting:
+    "Hi, I'm Bob! Ask me a home-safety or how-to question, or run something by me if you're not sure it's the right call.",
+  fallback:
+    "I don't have a solid answer stored for that one yet — I'm a lightweight helper, so I only know what's in my FAQ list. Try rephrasing, or ask about home safety, DIY-vs-pro decisions, or a right-thing-to-do question. For a specific broken item, use the diagnosis box above instead.",
+};
 
 function score(query: string, keywords: string[]): number {
   const q = query.toLowerCase();
   return keywords.reduce((acc, kw) => (q.includes(kw) ? acc + kw.split(" ").length : acc), 0);
 }
 
-export async function askBob(message: string): Promise<string> {
-  await new Promise((resolve) => setTimeout(resolve, 350));
+export const askBob = createServerFn({ method: "POST" })
+  .validator((message: string) => message)
+  .handler(async ({ data: message }) => {
+    await new Promise((resolve) => setTimeout(resolve, 350));
 
-  const trimmed = message.trim();
-  if (!trimmed) return FALLBACK;
+    const faq = getContent("bob.faq", DEFAULT_FAQ);
+    const settings = getContent("bob.settings", DEFAULT_SETTINGS);
 
-  let best: { entry: FaqEntry; score: number } | null = null;
-  for (const entry of FAQ) {
-    const s = score(trimmed, entry.keywords);
-    if (s > 0 && (!best || s > best.score)) {
-      best = { entry, score: s };
+    const trimmed = message.trim();
+    if (!trimmed) return settings.fallback;
+
+    let best: { entry: FaqEntry; score: number } | null = null;
+    for (const entry of faq) {
+      const s = score(trimmed, entry.keywords);
+      if (s > 0 && (!best || s > best.score)) {
+        best = { entry, score: s };
+      }
     }
-  }
 
-  return best ? best.entry.answer : FALLBACK;
-}
+    return best ? best.entry.answer : settings.fallback;
+  });
 
-export const BOB_GREETING =
-  "Hi, I'm Bob! Ask me a home-safety or how-to question, or run something by me if you're not sure it's the right call.";
+export const getBobSettings = createServerFn().handler(async () => {
+  return getContent("bob.settings", DEFAULT_SETTINGS);
+});
+
+export const getBobContent = createServerFn().handler(async () => {
+  return {
+    faq: getContent("bob.faq", DEFAULT_FAQ),
+    settings: getContent("bob.settings", DEFAULT_SETTINGS),
+  };
+});
+
+export const saveBobContent = createServerFn({ method: "POST" })
+  .validator((d: { faq: FaqEntry[]; settings: BobSettings }) => d)
+  .handler(async ({ data }) => {
+    setContent("bob.faq", data.faq);
+    setContent("bob.settings", data.settings);
+  });

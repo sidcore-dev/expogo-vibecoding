@@ -1,3 +1,6 @@
+import { createServerFn } from "@tanstack/react-start";
+import { getContent, setContent } from "@/lib/db.server";
+
 export type Difficulty = "5-Minute DIY" | "Weekend Project" | "Call a Pro";
 
 export interface Cause {
@@ -20,12 +23,12 @@ export interface Diagnosis {
   redFlags: string[];
 }
 
-interface Profile {
+export interface Profile {
   keywords: string[];
   diagnosis: Diagnosis;
 }
 
-const PROFILES: Profile[] = [
+const DEFAULT_PROFILES: Profile[] = [
   {
     keywords: ["faucet", "drip", "tap", "leaking sink", "leaky faucet"],
     diagnosis: {
@@ -448,7 +451,7 @@ const PROFILES: Profile[] = [
   },
 ];
 
-const GENERIC: Diagnosis = {
+const DEFAULT_GENERIC: Diagnosis = {
   category: "General Repair",
   title: "Household Issue",
   redFlags: [
@@ -505,11 +508,11 @@ const GENERIC: Diagnosis = {
   ],
 };
 
-function matchProfile(problem: string): Diagnosis {
+function matchProfile(problem: string, profiles: Profile[], generic: Diagnosis): Diagnosis {
   const text = problem.toLowerCase();
   let best: { profile: Profile; score: number } | null = null;
 
-  for (const profile of PROFILES) {
+  for (const profile of profiles) {
     const score = profile.keywords.reduce(
       (acc, kw) => (text.includes(kw) ? acc + 1 : acc),
       0,
@@ -519,14 +522,28 @@ function matchProfile(problem: string): Diagnosis {
     }
   }
 
-  return best ? best.profile.diagnosis : GENERIC;
+  return best ? best.profile.diagnosis : generic;
 }
 
-export async function diagnoseProblem({
-  data,
-}: {
-  data: { problem: string };
-}): Promise<Diagnosis> {
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  return matchProfile(data.problem);
-}
+export const diagnoseProblem = createServerFn({ method: "POST" })
+  .validator((d: { problem: string }) => d)
+  .handler(async ({ data }) => {
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    const profiles = getContent("diagnosis.profiles", DEFAULT_PROFILES);
+    const generic = getContent("diagnosis.generic", DEFAULT_GENERIC);
+    return matchProfile(data.problem, profiles, generic);
+  });
+
+export const getDiagnosisContent = createServerFn().handler(async () => {
+  return {
+    profiles: getContent("diagnosis.profiles", DEFAULT_PROFILES),
+    generic: getContent("diagnosis.generic", DEFAULT_GENERIC),
+  };
+});
+
+export const saveDiagnosisContent = createServerFn({ method: "POST" })
+  .validator((d: { profiles: Profile[]; generic: Diagnosis }) => d)
+  .handler(async ({ data }) => {
+    setContent("diagnosis.profiles", data.profiles);
+    setContent("diagnosis.generic", data.generic);
+  });

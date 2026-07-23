@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Bot, MessageCircle, Send, X } from "lucide-react";
-import { askBob, BOB_GREETING } from "@/lib/bob.functions";
+import { askBob, getBobSettings } from "@/lib/bob.functions";
 import { BTN_PRIMARY, CARD, INPUT } from "@/lib/ui";
 
 interface Message {
@@ -10,10 +11,18 @@ interface Message {
 
 export function BobWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([{ role: "bob", text: BOB_GREETING }]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const settingsQuery = useQuery({ queryKey: ["bob-settings"], queryFn: () => getBobSettings() });
+
+  useEffect(() => {
+    if (settingsQuery.data) {
+      setMessages([{ role: "bob", text: settingsQuery.data.greeting }]);
+    }
+  }, [settingsQuery.data]);
 
   useEffect(() => {
     if (listRef.current) {
@@ -27,7 +36,7 @@ export function BobWidget() {
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
     setThinking(true);
-    const reply = await askBob(text);
+    const reply = await askBob({ data: text });
     setMessages((m) => [...m, { role: "bob", text: reply }]);
     setThinking(false);
   };
@@ -44,7 +53,7 @@ export function BobWidget() {
               <div>
                 <div className="text-sm font-semibold text-foreground">Bob</div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  AI helper
+                  Helper
                 </div>
               </div>
             </div>
